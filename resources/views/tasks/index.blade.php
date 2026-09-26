@@ -3,90 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Task Manager</title>
+    <title>Navy Workspace</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">Personal Task Manager</h1>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #060a12; 
+            color: #94a3b8;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .navy-sidebar {
+            background: #0b1326;
+            border-right: 1px solid #1e293b;
+        }
+        .navy-card {
+            background: #0d172e;
+            border: 1px solid #1e293b;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .navy-card:hover {
+            border-color: #334155;
+            background: #101c38;
+        }
+        .navy-input {
+            background: #070e1e;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            transition: all 0.15s ease;
+        }
+        .navy-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Left Navigation & Stats Panel -->
+    <aside class="w-full lg:w-80 navy-sidebar p-6 flex flex-col justify-between shrink-0">
+        <div>
+            <!-- Header / Brand -->
+            <div class="flex items-center space-x-3 pb-6 border-b border-slate-800">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
+                    <i class="fa-solid fa-layer-group text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-slate-100 tracking-wide uppercase">Command Center</h1>
+                    <p class="text-[11px] font-mono text-slate-500">v2.4 • Active Ops</p>
+                </div>
+            </div>
+
+            <!-- Stats Widget -->
+            <div class="mt-8 space-y-3">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">Overview</span>
+                
+                <div class="navy-card p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400">Total Tasks</p>
+                        <p class="text-xl font-bold text-slate-100 mt-0.5">{{ $tasks->count() }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-slate-800/60 flex items-center justify-center text-slate-400">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                </div>
+
+                <div class="navy-card p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400">Completed</p>
+                        <p class="text-xl font-bold text-emerald-400 mt-0.5">{{ $tasks->where('status', 'Completed')->count() }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-emerald-950/40 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="navy-card p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400">Pending</p>
+                        <p class="text-xl font-bold text-amber-400 mt-0.5">{{ $tasks->where('status', 'Pending')->count() }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-amber-950/40 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Footer Info -->
+        <div class="pt-6 border-t border-slate-800 mt-8">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-mono text-slate-400">System Operational</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 lg:p-10 max-w-5xl">
+        
+        <!-- Flash Alert -->
         @if(session('success'))
-            <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
-                {{ session('success') }}
+            <div class="mb-6 p-4 rounded-xl bg-blue-950/60 border border-blue-800/80 text-xs text-blue-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-circle-info text-blue-400"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-blue-400 hover:text-blue-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
         @endif
 
-        <!-- Add Task Form -->
-        <form action="{{ route('tasks.store') }}" method="POST" class="mb-8 space-y-4 border-b pb-6">
-            @csrf
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Task Name</label>
-                <input type="text" name="task_name" required class="mt-1 w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+        <!-- Creation Bar -->
+        <section class="navy-card p-6 rounded-2xl mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center">
+                    <i class="fa-solid fa-plus text-blue-500 mr-2"></i> Quick Task Entry
+                </h2>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" rows="2" class="mt-1 w-full p-2 border rounded-md"></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Due Date</label>
-                <input type="date" name="due_date" class="mt-1 w-full p-2 border rounded-md">
-            </div>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Add Task</button>
-        </form>
+            
+            <form action="{{ route('tasks.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="md:col-span-2">
+                        <input type="text" name="task_name" required class="w-full px-4 py-3 rounded-xl navy-input text-sm placeholder-slate-600" placeholder="Enter objective title...">
+                    </div>
+                    <div>
+                        <input type="date" name="due_date" class="w-full px-4 py-3 rounded-xl navy-input text-sm text-slate-400">
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+                    <input type="text" name="description" class="w-full px-4 py-2.5 rounded-xl navy-input text-xs placeholder-slate-600" placeholder="Optional brief or details...">
+                    <button type="submit" class="w-full md:w-auto px-6 py-2.5 rounded-xl btn-primary text-xs font-semibold whitespace-nowrap shrink-0">
+                        Add Task
+                    </button>
+                </div>
+            </form>
+        </section>
 
-        <!-- Task List -->
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Task List</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b">
-                        <th class="p-3">Task Name</th>
-                        <th class="p-3">Description</th>
-                        <th class="p-3">Due Date</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($tasks as $task)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-3 font-medium">{{ $task->task_name }}</td>
-                            <td class="p-3 text-gray-600">{{ $task->description ?? 'N/A' }}</td>
-                            <td class="p-3 text-gray-600">{{ $task->due_date ?? 'No deadline' }}</td>
-                            <td class="p-3">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $task->status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+        <!-- Tasks Feed -->
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold text-slate-200 tracking-tight">Active Workload</h2>
+                <span class="text-xs font-mono text-slate-500">{{ $tasks->count() }} items listed</span>
+            </div>
+
+            <div class="space-y-3">
+                @forelse($tasks as $task)
+                    <div class="navy-card p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 {{ $task->status === 'Completed' ? 'border-l-emerald-500' : 'border-l-blue-500' }}">
+                        
+                        <div class="flex-1 space-y-1">
+                            <div class="flex items-center space-x-3">
+                                <h3 class="text-sm font-semibold {{ $task->status === 'Completed' ? 'line-through text-slate-500' : 'text-slate-100' }}">
+                                    {{ $task->task_name }}
+                                </h3>
+
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider {{ $task->status === 'Completed' ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50' : 'bg-amber-950/40 text-amber-400 border border-amber-800/40' }}">
                                     {{ $task->status }}
                                 </span>
-                            </td>
-                            <td class="p-3 flex space-x-2">
-                                <!-- Status Toggle -->
-                                <form action="{{ route('tasks.toggleStatus', $task) }}" method="POST">
+                            </div>
+
+                            @if($task->description)
+                                <p class="text-xs text-slate-400 line-clamp-1">
+                                    {{ $task->description }}
+                                </p>
+                            @endif
+                        </div>
+
+                        <!-- Meta & Actions -->
+                        <div class="flex items-center justify-between md:justify-end space-x-4 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800">
+                            <span class="text-xs font-mono text-slate-500 flex items-center">
+                                <i class="fa-regular fa-calendar-check mr-1.5 text-slate-400"></i>
+                                {{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('Y-m-d') : 'No deadline' }}
+                            </span>
+
+                            <div class="flex items-center space-x-1">
+                                <form action="{{ route('tasks.toggleStatus', $task) }}" method="POST" 
+                                      onsubmit="{{ $task->status === 'Pending' ? 'triggerConfetti(event, this)' : '' }}">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
-                                        Mark {{ $task->status === 'Pending' ? 'Completed' : 'Pending' }}
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-emerald-400 border border-slate-800 flex items-center justify-center transition-colors" title="Toggle Status">
+                                        <i class="fa-solid fa-check text-xs"></i>
                                     </button>
                                 </form>
 
-                                <!-- Edit -->
-                                <a href="{{ route('tasks.edit', $task) }}" class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</a>
+                                <a href="{{ route('tasks.edit', $task) }}" class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-blue-400 border border-slate-800 flex items-center justify-center transition-colors" title="Edit Task">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </a>
 
-                                <!-- Delete -->
-                                <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this task?');">
+                                <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this record?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center transition-colors" title="Delete Task">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
                                 </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-gray-500">No tasks found. Add one above!</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+                            </div>
+                        </div>
+
+                    </div>
+                @empty
+                    <div class="text-center py-12 navy-card rounded-xl border-dashed">
+                        <i class="fa-solid fa-inbox text-3xl text-slate-700 mb-2 block"></i>
+                        <p class="text-xs font-mono text-slate-500">No active tasks in queue.</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function triggerConfetti(e, form) {
+            e.preventDefault(); 
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.7 },
+                colors: ['#2563eb', '#38bdf8', '#34d399'],
+                disableForReducedMotion: true
+            });
+            setTimeout(() => { form.submit(); }, 300); 
+        }
+    </script>
 </body>
 </html>
