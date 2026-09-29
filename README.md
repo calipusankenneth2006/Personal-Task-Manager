@@ -19,7 +19,6 @@ SQLite
 - Delete Task - Allows students to remove tasks they no longer need.
 - Update Status - Allows students to mark tasks as Pending or Completed.
 
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8bd77aae-2167-4ce5-a7bc-1575429c28ce" />
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/5a394604-7791-4739-85ad-961212f425f1" />
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/e0359af8-39a2-4257-9dcb-cce6d2e829c7" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/e7673057-c5ca-4646-9a80-e4617916cb60" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/e2c54b10-09f5-47d1-b1d2-8de9b90b7406" />
 
